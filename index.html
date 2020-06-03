@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<!-- saved from url=(0094)https://www.jqueryscript.net/demo/jQuery-Plugin-For-Panning-Zooming-Any-Elements-panzoom/demo/ -->
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Zoom</title>
+
+    <style type="text/css">
+        body {
+            color: #333666;
+        }
+
+        .hide {
+            display: none !important;
+        }
+
+        .image-container {
+            margin: 0 auto;
+            margin-top: 2rem;
+            width: 80%;
+            position: relative;
+            display: flex;
+        }
+
+        .image-container .slider-container {
+            width: 90%;
+        }
+
+        .image-container .menu {
+            justify-content: flex-start;
+        }
+
+        .zoom-popup {
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            z-index: 500;
+            background-color: #fff;
+        }
+
+        .zoom-popup-container {
+            max-width: calc(100% - 60px);
+            width: calc(100% - 60px);
+            font-size: 0;
+            margin: 0 auto;
+            margin-top: 2rem;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        img {
+            width: 100%;
+            display: block;
+        }
+
+        .zoom-popup .close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .zoom-popup-container .zoom-range {
+            position: absolute;
+            left: 16px;
+            transform: translateY(calc(-50% - 97px)) rotate(-90deg);
+            bottom: -85px;
+            width: 180px;
+            transform-origin: left;
+        }
+
+        .zoom-popup-container .controls {
+            position: relative;
+            width: 30px;
+            height: 240px;
+        }
+
+        .zoom-popup-container .buttons {
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            left: 5px;
+            bottom: 0;
+            top: 0;
+        }
+
+        .zoom-popup-container .buttons button {
+            border: 1px solid;
+            background-color: #fff;
+            width: 24px;
+            height: 24px;
+            font-size: 20px;
+            position: absolute;
+            left: 0;
+            border-radius: 50%;
+        }
+
+        .zoom-popup-container .zoom-in {
+            top: 0;
+        }
+
+        .zoom-popup-container .zoom-out {
+            bottom: 0;
+        }
+
+        /* slider css */
+        .slider-container {
+            margin: auto;
+            border: 1px solid #111;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        
+           
+        }
+
+        .slider-container .slide {
+            cursor: zoom-in;
+            
+        }
+
+        .zoom-popup .slider-container img {
+            max-width: 100%;
+            transition: opacity .5s;
+        }
+
+        .zoom-popup .slider-container img:hover {
+            opacity: 0;
+        }
+
+        .slider-container input {
+            position: absolute;
+            opacity: 0;
+           
+        }
+
+        .menu {
+            width: 100px;
+            margin-right: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .menu label {
+            margin-bottom: 10px;
+            cursor: pointer;
+            display: block;
+            border-left: 3px solid transparent;
+            background: #fff;
+        }
+
+        .menu label:hover,
+        .menu label.active {
+            border-left-color: red;
+        }
+
+        .slider-container .slide {
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+
+        .slider-container [id^="slide"]:checked+.slide,
+        .image-container [id^="image"]:checked+.slide {
+            display: block;
+        }
+
+        /* .slide-1 {
+            background-image: url("https://source.unsplash.com/t7YycgAoVSw/1600x900");
+        }
+
+        .slide-2 {
+            background-image: url("https://source.unsplash.com/11H1SSVcIxc/1600x900");
+        }
+
+        .slide-3 {
+            background-image: url("https://source.unsplash.com/OlZ1nWLEEgM/1600x900");
+        } */
+    </style>
+</head>
+
+<body>
+    <main>
+        <!-- Image container -->
+        <div class="image-container">
+            <div class="menu" id="image-menu">
+                <label class="active" for="image-dot-1">
+                    <img src="https://assets.hermes.com/is/image/hermesproduct/echappee-hermes-bracelet-small-model--219492B%2000-front-1-300-0-1700-1700-q99_b.jpg">
+                </label>
+                <label for="image-dot-2">
+                    <img src="https://assets.hermes.com/is/image/hermesproduct/echappee-hermes-bracelet-small-model--219492B%2000-flat-2-300-0-2200-2200_b.jpg">
+                </label>
+                <label for="image-dot-3">
+                    <img src="https://assets.hermes.com/is/image/hermesproduct/echappee-hermes-ring-small-model--219690B%2000-front-1-300-0-2200-2200_b.jpg">
+                </label>
+            </div>
+            <div class="slider-container" id="openlightbox">
+                <input id="image-dot-1" type="radio" name="images" checked>
+                <div class="slide image-1" id="image-1">
+                    <img src="https://assets.hermes.com/is/image/hermesproduct/echappee-hermes-bracelet-small-model--219492B%2000-front-1-300-0-1700-1700-q99_b.jpg">
+                </div>
+
+                <input id="image-dot-2" type="radio" name="images">
+                <div class="slide image-2" id="image-2">
+                    <img src="https://assets.hermes.com/is/image/hermesproduct/echappee-hermes-bracelet-small-model--219492B%2000-flat-2-300-0-2200-2200_b.jpg">
+                </div>
+
+                <input id="image-dot-3" type="radio" name="images">
+                <div class="slide image-3" id="image-3">
+                    <img src="https://assets.hermes.com/is/image/hermesproduct/echappee-hermes-ring-small-model--219690B%2000-front-1-300-0-2200-2200_b.jpg">
+                </div>
+            </div>
+        </div>
+
+        <!-- light box -->
+        <div class="zoom-popup hide">
+            <div class="zoom-popup-container" id="contain">
+                <div class="menu" id="zoom-menu">
+                    <label class="active" for="slide-dot-1" id="label-image-1">
+                        <img src="https://assets.hermes.com/is/image/hermesproduct/echappee-hermes-bracelet-small-model--219492B%2000-front-1-300-0-1700-1700-q99_b.jpg">
+                    </label>
+                    <label for="slide-dot-2" id="label-image-2">
+                        <img src="https://assets.hermes.com/is/image/hermesproduct/echappee-hermes-bracelet-small-model--219492B%2000-flat-2-300-0-2200-2200_b.jpg">
+                    </label>
+                    <label for="slide-dot-3" id="label-image-3">
+                        <img src="https://assets.hermes.com/is/image/hermesproduct/echappee-hermes-ring-small-model--219690B%2000-front-1-300-0-2200-2200_b.jpg">
+                    </label>
+                </div>
+                <div class="slider-container">
+                    <input id="slide-dot-1" type="radio" name="slides" checked>
+                    <div class="slide slide-1 panzoom-parent" onmousemove='zoom(event)' style="background-image: url(https://assets.hermes.com/is/image/hermesproduct/echappee-hermes-bracelet-small-model--219492B%2000-front-1-300-0-1700-1700-q99_b.jpg);">
+                        <img class="panzoom" src="https://assets.hermes.com/is/image/hermesproduct/echappee-hermes-bracelet-small-model--219492B%2000-front-1-300-0-1700-1700-q99_b.jpg">
+                    </div>
+
+                    <input id="slide-dot-2" type="radio" name="slides">
+                    <div class="slide slide-2 panzoom-parent" onmousemove='zoom(event)' style="background-image: url(https://assets.hermes.com/is/image/hermesproduct/echappee-hermes-bracelet-small-model--219492B%2000-flat-2-300-0-2200-2200_b.jpg);">
+                        <img class="panzoom" src="https://assets.hermes.com/is/image/hermesproduct/echappee-hermes-bracelet-small-model--219492B%2000-flat-2-300-0-2200-2200_b.jpg">
+                    </div>
+
+                    <input id="slide-dot-3" type="radio" name="slides">
+                    <div class="slide slide-3 panzoom-parent" onmousemove='zoom(event)' style="background-image: url(https://assets.hermes.com/is/image/hermesproduct/echappee-hermes-ring-small-model--219690B%2000-front-1-300-0-2200-2200_b.jpg);">
+                        <img class="panzoom" src="https://assets.hermes.com/is/image/hermesproduct/echappee-hermes-ring-small-model--219690B%2000-front-1-300-0-2200-2200_b.jpg">
+                    </div>
+                </div>
+
+
+                <div class="controls">
+                    <input type="range" class="zoom-range" min="0.4" max="0.9" step="0.05">
+                    <div class="buttons">
+                        <button class="zoom-in">+</button>
+                        <button class="zoom-out">-</button>
+                        <!-- <button class="reset">Reset</button> -->
+                    </div>
+                </div>
+            </div>
+            <a href="#" class="close">Close</a>
+        </div>
+    </main>
+    <script src="https://www.jqueryscript.net/demo/jQuery-Plugin-For-Panning-Zooming-Any-Elements-panzoom/test/jquery.js"></script>
+    <script src="https://www.jqueryscript.net/demo/jQuery-Plugin-For-Panning-Zooming-Any-Elements-panzoom/dist/jquery.panzoom.js"></script>
+    <script>
+        (function () {
+            var $section = $('#contain');
+            $section.find('.panzoom').panzoom({
+                $zoomIn: $section.find(".zoom-in"),
+                $zoomOut: $section.find(".zoom-out"),
+                $zoomRange: $section.find(".zoom-range"),
+                $reset: $section.find(".reset"),
+                startTransform: 'scale(1)',
+                maxScale: 2,
+                minScale: 1,
+                increment: 1,
+            });
+        })();
+        function zoom(e) {
+            var zoomer = e.currentTarget;
+            e.offsetX ? offsetX = e.offsetX : offsetX = e.touches[0].pageX
+            e.offsetY ? offsetY = e.offsetY : offsetX = e.touches[0].pageX
+            x = offsetX / zoomer.offsetWidth * 100
+            y = offsetY / zoomer.offsetHeight * 100
+            zoomer.style.backgroundPosition = x + '% ' + y + '%';
+        }
+        $(document).ready(function () {
+            $("#openlightbox .slide").click(function () {
+                var imageID = $(this).attr('id');
+                $("#label-" + imageID).trigger('click');
+                $(".zoom-popup").removeClass("hide");
+            });
+            $(".zoom-popup .close").click(function () {
+                $(".zoom-popup").addClass("hide");
+            });
+            $('#image-menu').on('click', 'label', function () {
+                $('#image-menu label.active').removeClass('active');
+                $(this).addClass('active');
+            });
+            $('#zoom-menu').on('click', 'label', function () {
+                $('#zoom-menu label.active').removeClass('active');
+                $(this).addClass('active');
+            });
+        });
+    </script>
+    <!-- <script>
+        (function () {
+            var $section = $('#contain');
+            var $panzoom = $section.find('.panzoom').panzoom({
+                $zoomIn: $section.find(".zoom-in"),
+                $zoomOut: $section.find(".zoom-out"),
+                $zoomRange: $section.find(".zoom-range"),
+                $reset: $section.find(".reset"),
+                startTransform: 'scale(1.1)',
+                maxScale: 2,
+                increment: 0.1,
+                contain: true
+            }).panzoom('zoom', true);
+        })();
+    </script> -->
+</body>
+
+</html>
